@@ -1,66 +1,68 @@
 import { AdvancedMarker } from '@vis.gl/react-google-maps'
 import { getDatabase, ref, remove, set } from 'firebase/database'
-import { IMarker } from '../utils/definitions'
+import { IQuest } from '../utils/definitions'
 import styles from './Markers.module.css'
 
 interface IMarkersProps {
-	markers: IMarker[]
-	setMarkers: React.Dispatch<React.SetStateAction<IMarker[]>>
+	quests: IQuest[]
+	setQuests: React.Dispatch<React.SetStateAction<IQuest[]>>
 	setIsDrag: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export function Markers({ markers, setMarkers, setIsDrag }: IMarkersProps) {
-	const handleDeleteMarker = (id: string) => {
-		setMarkers(markers => markers.filter(marker => marker.id !== id))
-		deleteMarkerFromFirebase(id)
+export function Markers({ quests, setQuests, setIsDrag }: IMarkersProps) {
+	const handleDeleteQuest = (id: string) => {
+		setQuests(quests => quests.filter(quest => quest.id !== id))
+		deleteQuestFromFirebase(id)
 	}
 
-	const handleMarkerDragEnd = (e: any, id: string) => {
+	const handleQuestDragEnd = (e: any, id: string) => {
 		const newLocation = e.latLng
-		setMarkers(markers =>
-			markers.map(marker =>
-				marker.id === id ? { ...marker, location: newLocation } : marker
+		setQuests(quests =>
+			quests.map(quest =>
+				quest.id === id ? { ...quest, location: newLocation } : quest
 			)
 		)
-		updateMarkerInFirebase(id, newLocation)
+		updateQuestInFirebase(id, newLocation)
 		setTimeout(() => setIsDrag(false), 100)
 	}
 
-	const deleteMarkerFromFirebase = (id: string) => {
+	const deleteQuestFromFirebase = (id: string) => {
 		const database = getDatabase()
-		const markerRef = ref(database, `markers/${id}`)
-		remove(markerRef)
+		const questRef = ref(database, `quests/${id}`)
+		remove(questRef)
 	}
 
-	const updateMarkerInFirebase = (
+	const updateQuestInFirebase = (
 		id: string,
 		location: google.maps.LatLng | null
 	) => {
 		const database = getDatabase()
-		const markerRef = ref(database, `markers/${id}`)
+		const questRef = ref(database, `quests/${id}`)
 
-		set(markerRef, {
+		set(questRef, {
 			id,
 			location: { lat: location?.lat(), lng: location?.lng() },
+			timestamp: Date.now(),
+			next: null,
 		})
 	}
 
 	return (
 		<>
-			{markers.map((marker, index) => (
+			{quests.map((quest, index) => (
 				<AdvancedMarker
-					key={marker.id}
-					position={marker.location}
+					key={quest.id}
+					position={quest.location}
 					draggable={true}
 					onDragStart={() => setIsDrag(true)}
-					onDragEnd={e => handleMarkerDragEnd(e, marker.id)}
+					onDragEnd={e => handleQuestDragEnd(e, quest.id)}
 				>
 					<div className={styles.marker}>
 						{index.toString()}
 						<button
 							onClick={e => {
 								e.stopPropagation()
-								handleDeleteMarker(marker.id)
+								handleDeleteQuest(quest.id)
 							}}
 						>
 							X
