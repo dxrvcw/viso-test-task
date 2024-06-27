@@ -1,0 +1,34 @@
+.marker {
+	background-color: rgb(255, 166, 0);
+	color: white;
+	border-radius: 50%;
+	padding: 10px;
+	width: 20px;
+	height: 20px;
+	font-size: large;
+	text-align: center;
+	transition: all 0.3s;
+	position: relative;
+
+	> button {
+		display: none;
+		width: 100%;
+		background: red;
+		color: white;
+		padding: 3px 0;
+		border: none;
+		cursor: pointer;
+	}
+
+	&:hover {
+		background-color: rgb(238, 154, 0);
+		border-radius: 0;
+		height: 40px;
+		> button {
+			display: block;
+			position: absolute;
+			left: 0;
+			bottom: 0;
+		}
+	}
+}
